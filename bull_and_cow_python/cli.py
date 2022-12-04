@@ -1,5 +1,5 @@
 import random
-from typing import List, Tuple
+from typing import List, Sequence, Tuple
 
 
 from bull_and_cow_python.game import (
@@ -8,6 +8,7 @@ from bull_and_cow_python.game import (
     is_valid_guess,
     respond_to_guess,
 )
+from bull_and_cow_python.players import Player, RandomPlayer, TerminalPlayer
 
 
 def parse_bool(string: str) -> bool:
@@ -38,44 +39,62 @@ def ask_int(prompt: str, default: int) -> int:
     raise ValueError("No valid integers.")
 
 
-def ask_guess(prompt: str, secret_length: int, can_repeat: bool) -> str:
+def ask_guess(
+    player: Player,
+    prompt: str,
+    history: list[list[tuple[str, str]]],
+    idx: int,
+    secret_length: int,
+    can_repeat: bool,
+) -> str:
     for _ in range(100):
-        string = input(f"{prompt}: ")
+        string = player.make_guess(
+            prompt=f"{prompt}: ", history=history, idx=idx, secret_length=secret_length
+        )
         valid = is_valid_guess(
             guess=(string),
-            n=secret_length,
+            secret_length=secret_length,
             can_repeat=can_repeat,
         )
         if valid:
             return string
-    raise ValueError("No valid secrets.")
+    raise ValueError("No valid guesses.")
 
 
-def random_secret(n: int, can_repeat: bool) -> str:
+def random_secret(secret_length: int, can_repeat: bool) -> str:
     digits = "0123456789"
     if can_repeat:
-        return "".join(random.choices(digits, k=n))
-    return "".join(random.sample(digits, n))
+        return "".join(random.choices(digits, k=secret_length))
+    return "".join(random.sample(digits, secret_length))
 
 
-def ask_player_for_secret(n: int, i: int, can_repeat: bool) -> str:
-    while not is_valid_guess(
-        guess=(secret := input(f"Player {i} enter secret (blank for random): ")),
-        n=n,
-        can_repeat=can_repeat,
-    ):
-        if not secret:
-            secret = random_secret(n, can_repeat)
-            break
-        print("Secret was not valid.")
-    return secret
+def ask_player_for_secret(
+    player: Player, secret_length: int, i: int, can_repeat: bool
+) -> str:
+    for _ in range(100):
+        string = player.ask_secret(
+            prompt=f"Player {i} enter secret (blank for random): ",
+            secret_length=secret_length,
+        )
+        valid = is_valid_guess(
+            guess=(string),
+            secret_length=secret_length,
+            can_repeat=can_repeat,
+        )
+        if valid:
+            return string
+    raise ValueError("No valid guesses.")
 
 
-def ask_player_secrets(players: int, n: int, can_repeat: bool) -> tuple[str, ...]:
+def ask_player_secrets(
+    players: Sequence[Player], secret_length: int, can_repeat: bool
+) -> tuple[str, ...]:
     """Ask 2 players for a secret until the secrets are valid."""
     return tuple(
-        ask_player_for_secret(n=n, i=i, can_repeat=can_repeat)
-        for i in range(1, players + 1)
+        ask_player_for_secret(
+            player=player, secret_length=secret_length, i=i, can_repeat=can_repeat
+        )
+        for i, player in enumerate(players, 1)
     )
 
 
@@ -89,15 +108,20 @@ def cli():
     history: List[List[Tuple[str, str]]] = []
     secret_length = ask_int("Enter the length of the secret", 4)
     can_repeat = ask_bool("Can secrets repeat elements?")
-    playing_alone = ask_bool("Play numeric game alone against the computer?")
+    playing_alone = ask_bool("Play numeric game alone?")
+    playing_computer = ask_bool("Play numeric game against the computer?")
+
+    player1 = TerminalPlayer()
 
     if not playing_alone:
+        player2 = RandomPlayer()
         player1_secret, player2_secret = ask_player_secrets(
-            players=2, n=secret_length, can_repeat=can_repeat
+            [player1, player2], secret_length=secret_length, can_repeat=can_repeat
         )
     else:
-        player1_secret, player2_secret = "", random_secret(
-            n=secret_length, can_repeat=can_repeat
+        player2 = RandomPlayer() if playing_computer else TerminalPlayer()
+        player1_secret, player2_secret = "", ask_player_for_secret(
+            player=player2, secret_length=secret_length, i=2, can_repeat=can_repeat
         )
 
     # possibly unbound (?)
@@ -106,7 +130,10 @@ def cli():
     for guess_idx in range(max_guesses):
         history.append([])  # new turn
         player1_guess = ask_guess(
+            player=player1,
             prompt="Enter player 1's guess",
+            history=history,
+            idx=0,
             secret_length=secret_length,
             can_repeat=can_repeat,
         )
@@ -121,7 +148,10 @@ def cli():
 
         if not playing_alone:
             player2_guess = ask_guess(
+                player=player2,
                 prompt="Enter player 2's guess",
+                history=history,
+                idx=1,
                 secret_length=secret_length,
                 can_repeat=can_repeat,
             )

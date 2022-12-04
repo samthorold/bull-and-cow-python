@@ -14,10 +14,10 @@ A digit in the wrong position is a cow.
 """
 
 
-def is_valid_guess(guess: str, n: int = 4, can_repeat: bool = False) -> bool:
+def is_valid_guess(guess: str, secret_length: int = 4, can_repeat: bool = False) -> bool:
     """Confirm a secret number entry or guess is compliant with the rules."""
     all_numbers = all(c.upper() in "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" for c in guess)
-    correct_length = len(guess) == n
+    correct_length = len(guess) == secret_length
     if can_repeat:
         no_duplicates = True
     else:

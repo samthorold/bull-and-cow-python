@@ -14,11 +14,14 @@ A digit in the wrong position is a cow.
 """
 
 
-def is_valid_guess(guess: str, n: int = 4) -> bool:
+def is_valid_guess(guess: str, n: int = 4, can_repeat: bool = False) -> bool:
     """Confirm a secret number entry or guess is compliant with the rules."""
     all_numbers = all(c.upper() in "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" for c in guess)
     correct_length = len(guess) == n
-    no_duplicates = len(guess) == len(set(guess))
+    if can_repeat:
+        no_duplicates = True
+    else:
+        no_duplicates = len(guess) == len(set(guess))
     return all([all_numbers, correct_length, no_duplicates])
 
 
@@ -62,5 +65,5 @@ def format_history(history: list[list[tuple[str, str]]]) -> str:
         s += f"| {i:>4} |"
         for j, (guess, response) in enumerate(turn, 1):
             s += f" {guess:<15} | {response:<20} |"
-        s += "\n\n"
-    return s
+        s += "\n"
+    return s + "\n"

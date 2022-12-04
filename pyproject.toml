@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "bull-and-cow-python"
+version = "0.1.0"
+description = "Bull and Cow game"
+authors = ["Sam Thorold <sam.thorold@gmail.com>"]
+readme = "README.md"
+packages = [{include = "bull_and_cow_python"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.10.0"
+mypy = "^0.991"
+pytest-cov = "^4.0.0"
+
+[tool.poetry.scripts]
+bull_and_cow = 'bull_and_cow_python.cli:cli'
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -39,6 +39,10 @@ def get_player_secrets(players: int, n: int) -> tuple[str, ...]:
     return tuple(ask_player_for_secret(n, i) for i in range(1, players + 1))
 
 
+def is_correct_guess(guess: str, secret: str) -> bool:
+    return guess.upper() == secret.upper()
+
+
 def cli():
     print("*** Bulls and Cows ***")
     max_guesses = 100
@@ -67,7 +71,7 @@ def cli():
             guess=(player1_guess := input("Enter player 1's guess: ")), n=secret_length
         ):
             print("Guess was not valid.")
-        if player1_guess == player2_secret:
+        if is_correct_guess(player1_guess, player2_secret):
             print("Player 1 wins.")
             break
         player1_response = format_response(
@@ -81,7 +85,7 @@ def cli():
                 n=secret_length,
             ):
                 print("Guess was not valid.")
-            if player2_guess == player1_secret:
+            if is_correct_guess(player2_guess, player1_secret):
                 print("Player 2 wins.")
                 break
             player2_response = format_response(

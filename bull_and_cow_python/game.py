@@ -13,7 +13,7 @@ A digit in the wrong position is a cow.
 
 """
 
-from typing import List, Literal, Tuple
+from typing import List, Tuple
 
 
 def is_valid_guess(guess: str) -> bool:

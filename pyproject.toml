@@ -20,3 +20,6 @@ bull_and_cow = 'bull_and_cow_python.cli:cli'
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 90

@@ -37,6 +37,7 @@ def respond_to_guess(guess: str, truth: str) -> tuple[str, str, str, str]:
 
 
 def format_response(response: tuple[str, str, str, str]) -> str:
+    """Format the response as a sentence not revealing the location-specific info."""
     bullstring = cowstring = ""
     bulls = sum(c == "B" for c in response)
     if bulls == 1:
@@ -52,6 +53,7 @@ def format_response(response: tuple[str, str, str, str]) -> str:
 
 
 def format_history(history: list[list[tuple[str, str]]]) -> str:
+    """Display the game history in a human-readable format."""
     s = ""
     for i, turn in enumerate(history, 1):
         s += f"| {' ' if i < 10 else ''}{i} |"

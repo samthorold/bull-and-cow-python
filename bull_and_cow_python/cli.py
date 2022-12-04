@@ -24,9 +24,7 @@ def random_secret(n: int) -> str:
 
 
 def ask_player_for_secret(n: int) -> str:
-    while not is_valid_guess(
-        secret := input("Enter first secret (blank for random): ")
-    ):
+    while not is_valid_guess(secret := input("Enter first secret (blank for random): ")):
         if not secret:
             secret = random_secret(n)
             break
@@ -45,7 +43,9 @@ def cli():
     secret_length = 4
     history: List[List[Tuple[str, str]]] = []
 
-    playing_alone = parse_playing_alone(input("Play alone against the computer? (Y/N) [Y] "))
+    playing_alone = parse_playing_alone(
+        input("Play alone against the computer? (Y/N) [Y] ")
+    )
 
     if not playing_alone:
         player1_secret, player2_secret = get_player_secrets(2, secret_length)

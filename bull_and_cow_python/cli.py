@@ -23,9 +23,9 @@ def random_secret(n: int) -> str:
     return "".join(random.sample("0123456789", n))
 
 
-def ask_player_for_secret(n: int) -> str:
+def ask_player_for_secret(n: int, i: int) -> str:
     while not is_valid_guess(
-        guess=(secret := input("Enter first secret (blank for random): ")), n=n
+        guess=(secret := input(f"Player {i} enter secret (blank for random): ")), n=n
     ):
         if not secret:
             secret = random_secret(n)
@@ -36,21 +36,21 @@ def ask_player_for_secret(n: int) -> str:
 
 def get_player_secrets(players: int, n: int) -> tuple[str, ...]:
     """Ask 2 players for a secret until the secrets are valid."""
-    return tuple(ask_player_for_secret(n) for _ in range(players))
+    return tuple(ask_player_for_secret(n, i) for i in range(1, players + 1))
 
 
 def cli():
     print("*** Bulls and Cows ***")
     max_guesses = 100
     history: List[List[Tuple[str, str]]] = []
-    secret_length_string = input("Enter the number of digits in the secret number [4]: ")
+    secret_length_string = input("Enter the length of the secret [4]: ")
     if not secret_length_string:
         secret_length = 4
     else:
         secret_length = int(secret_length_string)
 
     playing_alone = parse_playing_alone(
-        input("Play alone against the computer? (Y/N) [Y] ")
+        input("Play alone against the computer? (Y/N, is numeric game) [Y] ")
     )
 
     if not playing_alone:

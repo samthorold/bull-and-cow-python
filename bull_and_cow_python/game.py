@@ -16,7 +16,7 @@ A digit in the wrong position is a cow.
 
 def is_valid_guess(guess: str, n: int = 4) -> bool:
     """Confirm a secret number entry or guess is compliant with the rules."""
-    all_numbers = all(c in "0123456789" for c in guess)
+    all_numbers = all(c.upper() in "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" for c in guess)
     correct_length = len(guess) == n
     no_duplicates = len(guess) == len(set(guess))
     return all([all_numbers, correct_length, no_duplicates])
@@ -54,10 +54,13 @@ def format_response(response: tuple[str, str, str, str]) -> str:
 
 def format_history(history: list[list[tuple[str, str]]]) -> str:
     """Display the game history in a human-readable format."""
-    s = ""
+    s = f"\n| Turn | {'Player 1 guess':<15} | {'Player 1 response':<20} |"
+    if len(history[0]) > 1:
+        s += f" {'Player 2 guess':<15} | {'Player 2 response':<20} |"
+    s += "\n"
     for i, turn in enumerate(history, 1):
-        s += f"| {' ' if i < 10 else ''}{i} |"
-        for j, (guess, response) in enumerate(turn):
-            s += f" {guess} | {response:<15} |"
-        s += "\n"
+        s += f"| {i:>4} |"
+        for j, (guess, response) in enumerate(turn, 1):
+            s += f" {guess:<15} | {response:<20} |"
+        s += "\n\n"
     return s

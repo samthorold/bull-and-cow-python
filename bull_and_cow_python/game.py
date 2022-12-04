@@ -61,13 +61,3 @@ def format_history(history: List[List[Tuple[str, str]]]) -> str:
             s += f" {guess} | {response:<15} |"
         s += "\n"
     return s
-
-
-# [
-#     [
-#         (guess, response),
-#         (guess, response),
-#         ...
-#     ],
-#     ...
-# ]

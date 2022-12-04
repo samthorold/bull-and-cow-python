@@ -10,27 +10,50 @@ from bull_and_cow_python.game import (
 )
 
 
+def parse_playing_alone(string: str) -> bool:
+    """Parse user response to "playing alone?" and return a boolean."""
+    if not string:
+        return True
+    if string.upper().strip() in ["Y", "YES"]:
+        return True
+    return False
+
+
+def random_secret(n: int) -> str:
+    return "".join(random.sample("0123456789", n))
+
+
+def ask_player_for_secret(n: int) -> str:
+    while not is_valid_guess(
+        secret := input("Enter first secret (blank for random): ")
+    ):
+        if not secret:
+            secret = random_secret(n)
+            break
+        print("Secret was not valid.")
+    return secret
+
+
+def get_player_secrets(players: int, n: int) -> tuple[bool, bool]:
+    """Ask 2 players for a secret until the secrets are valid."""
+    return tuple(ask_player_for_secret(n) for _ in range(players))
+
+
 def cli():
     print("*** Bulls and Cows ***")
+    max_guesses = 100
+    secret_length = 4
     history: List[List[Tuple[str, str]]] = []
 
-    while not is_valid_guess(
-        player1_secret := input("Enter first secret (blank for random): ")
-    ):
-        if not player1_secret:
-            player1_secret = "".join(random.sample("0123456789", 4))
-            break
-        print("Secret was not valid.")
+    playing_alone = parse_playing_alone(input("Play alone against the computer? (Y/N) [Y] "))
 
-    while not is_valid_guess(
-        player2_secret := input("Enter second secret (blank for random): ")
-    ):
-        if not player2_secret:
-            player2_secret = "".join(random.sample("0123456789", 4))
-            break
-        print("Secret was not valid.")
+    if not playing_alone:
+        player1_secret, player2_secret = get_player_secrets(2, secret_length)
+    else:
+        player2_secret = random_secret(secret_length)
 
-    for _ in range(100):
+    for guess_idx in range(max_guesses):
+        history.append([])  # new turn
         while not is_valid_guess(player1_guess := input("Enter player 1's guess: ")):
             print("Guess was not valid.")
         if player1_guess == player2_secret:
@@ -39,21 +62,20 @@ def cli():
         player1_response = format_response(
             respond_to_guess(player1_guess, player2_secret)
         )
+        history[-1].append((player1_guess, player1_response))
 
-        while not is_valid_guess(player2_guess := input("Enter player 2's guess: ")):
-            print("Guess was not valid.")
-        if player2_guess == player1_secret:
-            print("Player 2 wins.")
-            break
-        player2_response = format_response(
-            respond_to_guess(player2_guess, player1_secret)
-        )
+        if not playing_alone:
+            while not is_valid_guess(player2_guess := input("Enter player 2's guess: ")):
+                print("Guess was not valid.")
+            if player2_guess == player1_secret:
+                print("Player 2 wins.")
+                break
+            player2_response = format_response(
+                respond_to_guess(player2_guess, player1_secret)
+            )
 
-        history.append(
-            [
-                (player1_guess, player1_response),
-                (player2_guess, player2_response),
-            ]
-        )
+            history[-1].append((player2_guess, player2_response))
 
         print(format_history(history))
+    if guess_idx + 1 == max_guesses:
+        print("Ran out of guesses")

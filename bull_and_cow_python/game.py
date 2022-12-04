@@ -13,8 +13,6 @@ A digit in the wrong position is a cow.
 
 """
 
-from typing import List, Tuple
-
 
 def is_valid_guess(guess: str) -> bool:
     """Confirm a secret number entry or guess is compliant with the rules."""
@@ -24,7 +22,7 @@ def is_valid_guess(guess: str) -> bool:
     return all([all_numbers, correct_length, no_duplicates])
 
 
-def respond_to_guess(guess: str, truth: str) -> Tuple[str, str, str, str]:
+def respond_to_guess(guess: str, truth: str) -> tuple[str, str, str, str]:
     """Respond to a guess. Guess assumed to be valid."""
     response = []
     for i, digit in enumerate(guess):
@@ -38,7 +36,7 @@ def respond_to_guess(guess: str, truth: str) -> Tuple[str, str, str, str]:
     return tuple(response)
 
 
-def format_response(response: Tuple[str, str, str, str]) -> str:
+def format_response(response: tuple[str, str, str, str]) -> str:
     bullstring = cowstring = ""
     bulls = sum(c == "B" for c in response)
     if bulls == 1:
@@ -53,7 +51,7 @@ def format_response(response: Tuple[str, str, str, str]) -> str:
     return f"{bullstring}{', ' if bulls and cows else ''}{cowstring}"
 
 
-def format_history(history: List[List[Tuple[str, str]]]) -> str:
+def format_history(history: list[list[tuple[str, str]]]) -> str:
     s = ""
     for i, turn in enumerate(history, 1):
         s += f"| {' ' if i < 10 else ''}{i} |"

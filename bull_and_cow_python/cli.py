@@ -24,7 +24,9 @@ def random_secret(n: int) -> str:
 
 
 def ask_player_for_secret(n: int) -> str:
-    while not is_valid_guess(secret := input("Enter first secret (blank for random): ")):
+    while not is_valid_guess(
+        guess=(secret := input("Enter first secret (blank for random): ")), n=n
+    ):
         if not secret:
             secret = random_secret(n)
             break
@@ -32,7 +34,7 @@ def ask_player_for_secret(n: int) -> str:
     return secret
 
 
-def get_player_secrets(players: int, n: int) -> tuple[bool, bool]:
+def get_player_secrets(players: int, n: int) -> tuple[str, ...]:
     """Ask 2 players for a secret until the secrets are valid."""
     return tuple(ask_player_for_secret(n) for _ in range(players))
 
@@ -40,8 +42,12 @@ def get_player_secrets(players: int, n: int) -> tuple[bool, bool]:
 def cli():
     print("*** Bulls and Cows ***")
     max_guesses = 100
-    secret_length = 4
     history: List[List[Tuple[str, str]]] = []
+    secret_length_string = input("Enter the number of digits in the secret number [4]: ")
+    if not secret_length_string:
+        secret_length = 4
+    else:
+        secret_length = int(secret_length_string)
 
     playing_alone = parse_playing_alone(
         input("Play alone against the computer? (Y/N) [Y] ")
@@ -50,11 +56,16 @@ def cli():
     if not playing_alone:
         player1_secret, player2_secret = get_player_secrets(2, secret_length)
     else:
-        player2_secret = random_secret(secret_length)
+        player1_secret, player2_secret = "", random_secret(secret_length)
+
+    # possibly unbound (?)
+    guess_idx = 0
 
     for guess_idx in range(max_guesses):
         history.append([])  # new turn
-        while not is_valid_guess(player1_guess := input("Enter player 1's guess: ")):
+        while not is_valid_guess(
+            guess=(player1_guess := input("Enter player 1's guess: ")), n=secret_length
+        ):
             print("Guess was not valid.")
         if player1_guess == player2_secret:
             print("Player 1 wins.")
@@ -65,7 +76,10 @@ def cli():
         history[-1].append((player1_guess, player1_response))
 
         if not playing_alone:
-            while not is_valid_guess(player2_guess := input("Enter player 2's guess: ")):
+            while not is_valid_guess(
+                guess=(player2_guess := input("Enter player 2's guess: ")),
+                n=secret_length,
+            ):
                 print("Guess was not valid.")
             if player2_guess == player1_secret:
                 print("Player 2 wins.")
